@@ -14,8 +14,11 @@
   - [Perform a Backup](#perform-a-backup)
   - [CLI Conguration](#cli-conguration)
     - [Pre-Upgrade Tasks](#pre-upgrade-tasks)
+      - [See Also](#see-also)
   - [Upgrade Instructions](#upgrade-instructions)
-  - [CLI Configuration](#cli-configuration)
+    - [CLI Configuration](#cli-configuration)
+      - [To upgrade from primary hard disk:](#to-upgrade-from-primary-hard-disk)
+      - [To upgrade from secondary hard disk:](#to-upgrade-from-secondary-hard-disk)
     - [Port Mapping](#port-mapping)
     - [Restore Example](#restore-example)
     - [CLI Configuration](#cli-configuration-1)
@@ -133,7 +136,7 @@ Depending on the configuration profile and the partition being saved to, the fol
 
 This section describes general guidelines on how ACOS selects the boot image. 
 
-Each ACOS device contains multiple locations where software images can be placed. Figure 1 provides an overview of the general upgrade process. For more information, see "Storage Areas" in the System Configuration and Administration Guide. 
+Each ACOS device contains multiple locations where software images can be placed. Figure 1 fprovides an overview of the general upgrade process. For more information, see "Storage Areas" in the System Configuration and Administration Guide. 
 
 - When you load a new image onto the ACOS device, you can select the image device (disk or CF) and the area (primary or secondary) on the device.  
 
@@ -201,40 +204,35 @@ Table 2 : Upgrade Preparation Checklist
 |Check the product license Information| `ACOS(config)#show license-info`|
 |Check the system boot order.|`ACOS(config)#show bootimage`| 
 |Save the primary, secondary, and partition configurations|`ACOS(config)#write memory primary\|secondary [profile-name]`|
-
-Take the system backup 
-
-ACOS(config)#backup system 
+|Take the system backup|`ACOS(config)#backup system`| 
 
 Take the backup of system log files and core files, if required.  
 
 ACOS(config)#backup log 
 
- 
+#### See Also 
 
-See Also 
-
- For detailed information on all the commands, see Command Line Interface Reference.  
+ For detailed information on all the commands, see ***Command Line Interface Reference***.
 
 ## Upgrade Instructions 
 
 This section describes the upgrade instructions using CLI and GUI. The upgrade instruction provided in this section applies to FTA platforms, non-FTA platforms, and non-aVCS environments.  
 
-## CLI Configuration 
+### CLI Configuration 
 
-Upgrade the ACOS device using the upgrade command. 
+1. Upgrade the ACOS device using the upgrade command. 
 
-To upgrade from primary hard disk:  
+#### To upgrade from primary hard disk:  
 
-On an FTA device: `ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg`
+- On an FTA device: `ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg`
 
-On a Non-FTA device: ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg 
+- On a Non-FTA device: `ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg` 
 
-To upgrade from secondary hard disk:  
+#### To upgrade from secondary hard disk:  
 
-On an FTA device: ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg 
+- On an FTA device: `ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg`
 
-On a Non-FTA device: ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg 
+- On a Non-FTA device: ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg 
 
 You will be prompted to reboot your ACOS device. 
 
