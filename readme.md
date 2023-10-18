@@ -1,4 +1,24 @@
-toc
+- [Upgrading to ACOS 6.x.x](#upgrading-to-acos-6xx)
+  - [Overview](#overview)
+  - [Purpose](#purpose)
+  - [Intended Audience](#intended-audience)
+  - [General Guidelines](#general-guidelines)
+  - [Unsupported Upgrade](#unsupported-upgrade)
+- [Prerequisites](#prerequisites)
+- [Upgrade Requirements](#upgrade-requirements)
+  - [System Requirement](#system-requirement)
+  - [Memory Requirements](#memory-requirements)
+  - [System Partitions](#system-partitions)
+  - [Review Boot Order](#review-boot-order)
+  - [Download Software Image](#download-software-image)
+  - [Perform a Backup](#perform-a-backup)
+  - [CLI Conguration](#cli-conguration)
+    - [Pre-Upgrade Tasks](#pre-upgrade-tasks)
+    - [Port Mapping](#port-mapping)
+    - [Restore Example](#restore-example)
+    - [CLI Configuration](#cli-configuration)
+    - [GUI Configuration](#gui-configuration)
+
 
 
 # Upgrading to ACOS 6.x.x 
@@ -52,7 +72,7 @@ Consider the following recommendations before upgrading the ACOS device:
 
 - The Web Application Firewall (WAF) is no longer supported starting from the ACOS 6.x release. Hence, all WAF configurations will be removed after the upgrade. For more information, see Web Application Firewall Changes. 
 
-Prerequisites 
+# Prerequisites 
 
 This section outlines essential information that you should know before proceeding with the upgrade process.  
 
@@ -60,65 +80,37 @@ This section outlines essential information that you should know before proceedi
 
 Table 1 : Prerequisite Tasks 
 
-Tasks 
+| Tasks | Refer |
+|----------|----------|
+Check the platform compatibility versus the supported release version. | Hardware Platforms Support 
+Check the SKUs or product licenses availability. | Hardware Product Licenses 
+Check the storage and memory requirement. | System Requirement 
+Carefully review the new features, known issues, and changes to default behavior. | Documentation Site 
+Understand how ACOS selects the boot order. | Review Boot Order 
+Understand what the ACOS partitions and how to take a backup. | System Partitions 
+Check the instructions for taking a system backup. | Perform a Backup 
+Download the ACOS software image. | Download Software Image 
 
-Refer 
+> NOTE: 	  
 
-Check the platform compatibility versus the supported release version. 
+- Schedule a maintenance window for the upgrade, considering the potential downtime required. Communicate this schedule to relevant stakeholders. 
 
-Hardware Platforms Support 
+- Inform all users about the scheduled downtime and ensure they save any unsaved work or log out of the system before the upgrade begins. 
 
-Check the SKUs or product licenses availability. 
-
-Hardware Product Licenses 
-
-Check the storage and memory requirement. 
-
-System Requirement 
-
-Carefully review the new features, known issues, and changes to default behavior. 
-
-Documentation Site 
-
-Understand how ACOS selects the boot order. 
-
-Review Boot Order 
-
-Understand what the ACOS partitions and how to take a backup. 
-
-System Partitions 
-
-Check the instructions for taking a system backup. 
-
-Perform a Backup 
-
-Download the ACOS software image. 
-
-Download Software Image 
-
- 
-
-NOTE: 	  
-
-Schedule a maintenance window for the upgrade, considering the potential downtime required. Communicate this schedule to relevant stakeholders. 
-
-Inform all users about the scheduled downtime and ensure they save any unsaved work or log out of the system before the upgrade begins. 
-
-System Requirement 
+# Upgrade Requirements
+## System Requirement 
 
 The system requirements for ACOS software include the following: 
 
-For ACOS 4.x releases, the minimum disk space requirement is 2.8 GB. 
+- For ACOS 4.x releases, the minimum disk space requirement is 2.8 GB. 
+- For ACOS 5.x releases, the minimum disk space requirement is 4.5 GB. 
+- For ACOS 6.x releases, the minimum disk space requirement is 8 GB.  
 
-For ACOS 5.x releases, the minimum disk space requirement is 4.5 GB. 
-
-For ACOS 6.x releases, the minimum disk space requirement is 8 GB.  
-
-Memory Requirements 
+## Memory Requirements 
 
 For a vThunder device, the minimum memory requirement is 8 GB. 
 
-System Partitions 
+## System Partitions 
 
 Each ACOS device contains one shared partition. By default, this is the only partition on the device and cannot be deleted. If there are no additional partitions on the device, all configuration changes occur in the shared partition. 
 
@@ -128,87 +120,68 @@ Depending on the configuration profile and the partition being saved to, the fol
 
  
 
-Command 
+| Command | Descriptions |
+|---------------------------------------|--------------|
+| `write memory` | Save the running configuration to the startup-config or the current profile in the current partition. |
+|`write memory all-partitions` | Save the running configuration to their respective startup-config or their current profiles of all partitions.  
+|`write memory <profile-name>`|Save the running configuration to the new profile in the current partition. |
+`write memory <profile-name> all-partitions` | Save the running configuration to the new profile of all partitions. |
 
-Descriptions 
-
-write memory 
-
-Save the running configuration to the startup-config or the current profile in the current partition. 
-
-write memory all-partitions 
-
-Save the running configuration to their respective startup-config or their current profiles of all partitions.  
-
-write memory <profile-name> 
-
-Save the running configuration to the new profile in the current partition. 
-
-write memory <profile-name> all-partitions 
-
-Save the running configuration to the new profile of all partitions. 
-
- 
-
-Review Boot Order 
+## Review Boot Order 
 
 This section describes general guidelines on how ACOS selects the boot image. 
 
 Each ACOS device contains multiple locations where software images can be placed. Figure 1 provides an overview of the general upgrade process. For more information, see "Storage Areas" in the System Configuration and Administration Guide. 
 
-When you load a new image onto the ACOS device, you can select the image device (disk or CF) and the area (primary or secondary) on the device.  
+- When you load a new image onto the ACOS device, you can select the image device (disk or CF) and the area (primary or secondary) on the device.  
 
-When you power ON or reboot the ACOS device, it always attempts to boot from the disk, using the image area specified in the configuration (primary disk, by default). If a disk fails, the device attempts to boot from the same image area on the backup disk (if applicable to the device model). 
+- When you power ON or reboot the ACOS device, it always attempts to boot from the disk, using the image area specified in the configuration (primary disk, by default). If a disk fails, the device attempts to boot from the same image area on the backup disk (if applicable to the device model). 
 
 You need to change the boot order only when you plan to upload the new image into an image area other than the first image area the ACOS device uses when it boots (primary disk). To change the boot order, use the bootimage command.  
 
-NOTE:	A10 Networks recommends installing the new image into just one disk image area, either primary or secondary, while retaining the old image in the other area. This helps to restore the system in case a downgrade is necessary or if an issue occurs while rebooting the new image.  
+> NOTE:	A10 Networks recommends installing the new image into just one disk image area, either primary or secondary, while retaining the old image in the other area. This helps to restore the system in case a downgrade is necessary or if an issue occurs while rebooting the new image.  
 
 Figure 1 :  Generic Upgrade Process 
 
  
 
-Download Software Image 
+## Download Software Image 
 
 Log in to A10 Networks Support using the GLM credential and download the ACOS upgrade package as specified below:  
 
-For FTA enabled platforms, use the image with the file name: 
+- For FTA enabled platforms, use the image with the file name: 
 
-ACOS_FTA_<version>ONEIMG.upg 
+`ACOS_FTA_<version>ONEIMG.upg` 
 
-For Non-FTA enabled platforms (including vThunder), use the image with the file name: 
+- For Non-FTA enabled platforms (including vThunder), use the image with the file name: 
 
-ACOS_non_FTA_<version>ONEIMG.upg 
+`ACOS_non_FTA_<version>ONEIMG.upg` 
 
-Perform a Backup 
+## Perform a Backup 
 
 It's essential to perform a complete backup of your data, including configuration settings, databases, and any customizations. This backup will prove invaluable in case of unexpected issues during the upgrade and you want to restore it. For information about restoring a backup, see Restore from a Backup.  
 
 This section provides examples of how to back up your system. 
 
-CLI Conguration 
+## CLI Conguration 
 
 The following example creates a backup of the system (startup-config file, aFleX scripts, and SSL certificates and keys) on a remote server using SCP. 
 
-ACOS(config)# backup system scp://exampleuser@192.168.3.3/home/users/exampleuser/backups/backupfile.tar.gz 
+`ACOS(config)# backup system scp://exampleuser@192.168.3.3/home/users/exampleuser/backups/backupfile.tar.gz`
 
 The following example creates a daily backup of the log entries in the syslog buffer. The connection to the remote server will be established using SCP on the management interface (use-mgmt-port).  
 
-ACOS(config)# backup log period 1 use-mgmt-port scp://exampleuser@192.168.3.3/home/users/exampleuser/backups/backuplog.tar.gz 
+`ACOS(config)# backup log period 1 use-mgmt-port scp://exampleuser@192.168.3.3/home/users/exampleuser/backups/backuplog.tar.gz`
 
 GUI Configuration 
 
-Log in to ACOS Web GUI using your credentials. 
+1. Log in to ACOS Web GUI using your credentials. 
+2. Navigate to System >> Maintenance >> Backup.  
 
-Navigate to System >> Maintenance >> Backup.  
-
- 
-
-On the Backup page, click ? to open the Online Help. 
-
+3. On the Backup page, click ? to open the Online Help. 
 The Online Help provides complete details on backup instructions.  
 
-Pre-Upgrade Tasks 
+### Pre-Upgrade Tasks 
 
 Before upgrading ACOS software, you must perform some basic checks. Keep the below information handy to ensure a seamless upgrade.  
 
@@ -216,35 +189,14 @@ Before upgrading ACOS software, you must perform some basic checks. Keep the bel
 
 Table 2 : Upgrade Preparation Checklist 
 
-Tasks 
-
-Command or Action 
-
-Check your current hardware information 
-
-ACOS(config)#show hardware 
-
-Check the current software version 
-
-ACOS>show version 
-
-Check the current system disk space and memory. Free up the space, if required 
-
-ACOS(config)#show memory 
-
-ACOS(config)#show disk 
-
-Check the product license Information 
-
-ACOS(config)#show license-info 
-
-Check the system boot order.  
-
-ACOS(config)#show bootimage 
-
-Save the primary, secondary, and partition configurations 
-
-ACOS(config)#write memory [primary | secondary] profile-name 
+|Tasks|Command or Action |
+|---------|:-------------------------------|
+|Check your current hardware information|`ACOS(config)#show hardware`|
+|Check the current software version| `ACOS>show version`|
+|Check the current system disk space and memory. Free up the space, if required|`ACOS(config)#show memory` `ACOS(config)#show disk` |
+|Check the product license Information| `ACOS(config)#show license-info`|
+|Check the system boot order.|`ACOS(config)#show bootimage`| 
+|Save the primary, secondary, and partition configurations|`ACOS(config)#write memory primary\|secondary [profile-name]`|
 
 Take the system backup 
 
@@ -420,7 +372,7 @@ Exit the restore operation. The user will have to perform a system-reset or disa
 
  
 
-Port Mapping 
+### Port Mapping 
 
 When restoring from a device that has a different number of ports, or even the same number of ports, you can map the port number from the previous configuration to a new port number (or same port number) in the new configuration.  
 
@@ -428,96 +380,60 @@ In cases where the original number of ports is greater than the number of ports 
 
 If you choose to skip port mapping (see the example below), then the original port numbers and configurations are preserved. If the original device had ports 1-10 configured, and the new device only has ports 1-8, and you skip port mapping, then ports 9 and 10 are lost. If you choose port mapping, you can decide which 8 out of the original 10 ports you want to preserve during the port mapping process. 
 
-Restore Example 
+### Restore Example 
 
 This section provides an example of a restore operation: 
 
-The backup is restored from version 4.1.1-P1 to 4.1.1-P2.  
+- The backup is restored from version 4.1.1-P1 to 4.1.1-P2.  
+- The system memory on the original device is 8 GB, but is 16GB on the new device. 
+- The number of interfaces on the original device is 10, but the new device has 12. 
 
-The system memory on the original device is 8 GB, but is 16GB on the new device. 
-
-The number of interfaces on the original device is 10, but the new device has 12. 
-
-CLI Configuration 
+### CLI Configuration 
 
 See the highlighted lines in the following example output along with the corresponding comments that are marked with “<--“characters: 
 
   
-
+```
 ACOS(config)# restore use-mgmt-port scp://root@192.168.2.2/root/user1/backup1 
-
 Password []?  
 
-  
-
 A10 Product: 
-
-    Object               Backup device        Current device 
-
--------------------------------------------------------------------- 
-
-    Device               TH1030               TH3030 
-
-    Image version        4.1.1-P1             4.1.1-P2 
+| Object | Backup device | Current device 
+|----------------|-------------------------------|--------------------- 
+| Device | TH1030 | TH3030 
+|Image version | 4.1.1-P1 | 4.1.1-P2 
 
 System memory: 
-
     Object               Backup device        Current device 
-
--------------------------------------------------------------------- 
-
+------------------------------------------------------------------- 
     Memory (MB)          8174                 16384 
-
-  
 
 Checking memory: OK. 
 
 Ethernet Interfaces: 
-
     Object               Backup device        Current device 
-
--------------------------------------------------------------------- 
-
+------------------------------------------------------------------- 
     Total                10                    12 
-
     1 Gig                1-10                  1-12 
 
 Do you want to skip port map?(Answer no if you want port mapping manually.) 
-
 [yes/no]: no 
 
-  
-
 Please specify the Current device to Backup device port mapping 
-
 1-10 : a valid port number in backup device. 
-
 0    : to skip a port 
-
 -1   : to restart port mapping. 
 
-  
-
 Current Port:    Backup device port 
-
 Port 1 : 2 <-- port 2 on the backup device is re-numbered to 1 
-
 Port 2 : 1 <-- port 1 on the backup device is re-numbered to 2 
-
 Port 3  :            0 
-
 Port 4  :            0 
-
 Port 5  :            0 
-
 Port 6  :            0 
-
 Port 7  :            0 
-
 Port 8  :            0 
-
 Port 9  :            0 
-
 Port 10 :            0 
 
 The current startup-configuration will be replaced with the new configuration that was imported. 
@@ -526,110 +442,61 @@ Do you wish to see the diff between the updated startup-config and the original 
 
 [yes/no]: yes 
 
-  
-
 Modified configuration begin with "!#" 
 
-  
-
 !Current configuration: 277 bytes 
-
 !Configuration last updated at 05:38:18 UTC Fri Mar 17 2017 
-
 !Configuration last saved at 05:38:19 UTC Fri Mar 17 2017 
-
 !64-bit Advanced Core OS (ACOS) version 4.1.1-P2, build 112 (Mar-13-2017,15:41) 
-
 ! 
-
 interface management 
-
   ip address 192.168.210.24 255.255.255.0 
-
   ip default-gateway 192.168.210.1 
 
 !#interface management 
-
 !#  ip address 192.168.210.24 255.255.255.0 
-
 !#  ip default-gateway 192.168.210.1 
-
 !#  exit-module 
-
 ! 
-
 interface ethernet 2 
-
 !#interface ethernet 1 <-- original port 1 is now port 2 
-
   exit-module 
-
 ! 
-
 interface ethernet 1 
-
 !#interface ethernet 2 <-- original port 2 is now port 1 
-
   exit-module 
-
 ! 
-
 !#interface ethernet 3 
-
 !#  exit-module 
-
 ! 
-
 !#interface ethernet 4 
-
 !#  exit-module 
-
 ! 
-
 !#interface ethernet 5 
-
 !#  exit-module 
-
 ! 
-
 !#interface ethernet 6 
-
 !#  exit-module 
-
 ! 
-
 !#interface ethernet 7 
-
 !#  exit-module 
-
 ! 
-
 !#interface ethernet 8 
-
 !#  exit-module 
-
 ! 
-
 ! 
-
 end 
 
 Complete the restore process? 
-
 [yes/no]: yes 
-
-  
 
 Please wait restore to complete: . 
 
 Restore successful. Please reboot to take effect. 
+```
+### GUI Configuration 
 
-GUI Configuration 
-
-Log in to ACOS Web GUI using your credentials. 
-
-Navigate to System >> Maintenance >> Restore.  
-
-On the Restore page, click ? to open the Online Help. 
-
-The Online Help provides complete details on restore instructions.  
+1. Log in to ACOS Web GUI using your credentials. 
+1. Navigate to System >> Maintenance >> Restore.  
+1. On the Restore page, click ? to open the Online Help. 
+1. The Online Help provides complete details on restore instructions.  
