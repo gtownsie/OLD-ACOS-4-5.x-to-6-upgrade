@@ -236,7 +236,7 @@ This section describes the upgrade instructions using CLI and GUI. The upgrade i
 
 You will be prompted to reboot your ACOS device. 
 
- Press yes to reboot and bring up the upgraded ACOS software.  
+- Press yes to reboot and bring up the upgraded ACOS software.  
 
 Allow up to five minutes for the reboot to complete. (The typical reboot time is 2-3 minutes.) 
 
