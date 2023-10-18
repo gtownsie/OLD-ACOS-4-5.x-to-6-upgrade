@@ -14,9 +14,11 @@
   - [Perform a Backup](#perform-a-backup)
   - [CLI Conguration](#cli-conguration)
     - [Pre-Upgrade Tasks](#pre-upgrade-tasks)
+  - [Upgrade Instructions](#upgrade-instructions)
+  - [CLI Configuration](#cli-configuration)
     - [Port Mapping](#port-mapping)
     - [Restore Example](#restore-example)
-    - [CLI Configuration](#cli-configuration)
+    - [CLI Configuration](#cli-configuration-1)
     - [GUI Configuration](#gui-configuration)
 
 
@@ -212,11 +214,11 @@ See Also
 
  For detailed information on all the commands, see Command Line Interface Reference.  
 
-Upgrade Instructions 
+## Upgrade Instructions 
 
 This section describes the upgrade instructions using CLI and GUI. The upgrade instruction provided in this section applies to FTA platforms, non-FTA platforms, and non-aVCS environments.  
 
-CLI Configuration 
+## CLI Configuration 
 
 Upgrade the ACOS device using the upgrade command. 
 
