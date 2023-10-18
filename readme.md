@@ -143,7 +143,9 @@ You need to change the boot order only when you plan to upload the new image int
 
 > NOTE:	A10 Networks recommends installing the new image into just one disk image area, either primary or secondary, while retaining the old image in the other area. This helps to restore the system in case a downgrade is necessary or if an issue occurs while rebooting the new image.  
 
-Figure 1 :  Generic Upgrade Process 
+![Upgrade](./images/Upgrade-Image.png)
+
+_Figure 1_:  Generic Upgrade Process 
 
  
 
