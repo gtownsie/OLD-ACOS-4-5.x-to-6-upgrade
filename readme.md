@@ -224,7 +224,7 @@ Upgrade the ACOS device using the upgrade command.
 
 To upgrade from primary hard disk:  
 
-On an FTA device: ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg 
+On an FTA device: `ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg`
 
 On a Non-FTA device: ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg 
 
