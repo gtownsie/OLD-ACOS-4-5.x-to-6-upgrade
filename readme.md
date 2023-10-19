@@ -13,13 +13,25 @@
   - [Download Software Image](#download-software-image)
   - [Perform a Backup](#perform-a-backup)
   - [CLI Conguration](#cli-conguration)
+  - [GUI Configuration](#gui-configuration)
     - [Pre-Upgrade Tasks](#pre-upgrade-tasks)
-  - [Upgrade Instructions](#upgrade-instructions)
+- [Upgrade Instructions](#upgrade-instructions)
   - [CLI Configuration](#cli-configuration)
+    - [To upgrade from primary hard disk:](#to-upgrade-from-primary-hard-disk)
+    - [To upgrade from secondary hard disk:](#to-upgrade-from-secondary-hard-disk)
+  - [GUI Configuration](#gui-configuration-1)
+  - [Post-Upgrade Tasks](#post-upgrade-tasks)
+- [Rollback Upgrade](#rollback-upgrade)
+- [Restore from a Backup](#restore-from-a-backup)
+  - [Key Considerations for System Restore](#key-considerations-for-system-restore)
+    - [System Memory](#system-memory)
+    - [FTA versus Non-FTA](#fta-versus-non-fta)
+    - [L3V Partitions](#l3v-partitions)
+    - [Port Splitting](#port-splitting)
     - [Port Mapping](#port-mapping)
     - [Restore Example](#restore-example)
     - [CLI Configuration](#cli-configuration-1)
-    - [GUI Configuration](#gui-configuration)
+  - [GUI Configuration](#gui-configuration-2)
 
 
 
@@ -83,7 +95,7 @@ This section outlines essential information that you should know before proceedi
 Table 1 : Prerequisite Tasks 
 
 | Tasks | Refer |
-|----------|----------|
+|:--------|----------|
 Check the platform compatibility versus the supported release version. | Hardware Platforms Support 
 Check the SKUs or product licenses availability. | Hardware Product Licenses 
 Check the storage and memory requirement. | System Requirement 
@@ -122,8 +134,8 @@ Depending on the configuration profile and the partition being saved to, the fol
 
  
 
-| Command | Descriptions |
-|---------------------------------------|--------------|
+| Command                               | Descriptions |
+|-----------------------------------------------------|--------------|
 | `write memory` | Save the running configuration to the startup-config or the current profile in the current partition. |
 |`write memory all-partitions` | Save the running configuration to their respective startup-config or their current profiles of all partitions.  
 |`write memory <profile-name>`|Save the running configuration to the new profile in the current partition. |
@@ -133,7 +145,7 @@ Depending on the configuration profile and the partition being saved to, the fol
 
 This section describes general guidelines on how ACOS selects the boot image. 
 
-Each ACOS device contains multiple locations where software images can be placed. Figure 1 provides an overview of the general upgrade process. For more information, see "Storage Areas" in the System Configuration and Administration Guide. 
+Each ACOS device contains multiple locations where software images can be placed. Figure 1 fprovides an overview of the general upgrade process. For more information, see "Storage Areas" in the System Configuration and Administration Guide. 
 
 - When you load a new image onto the ACOS device, you can select the image device (disk or CF) and the area (primary or secondary) on the device.  
 
@@ -177,7 +189,7 @@ The following example creates a daily backup of the log entries in the syslog bu
 
 `ACOS(config)# backup log period 1 use-mgmt-port scp://exampleuser@192.168.3.3/home/users/exampleuser/backups/backuplog.tar.gz`
 
-GUI Configuration 
+## GUI Configuration 
 
 1. Log in to ACOS Web GUI using your credentials. 
 2. Navigate to System >> Maintenance >> Backup.  
@@ -195,154 +207,114 @@ Table 2 : Upgrade Preparation Checklist
 
 |Tasks|Command or Action |
 |---------|:-------------------------------|
-|Check your current hardware information|`ACOS(config)#show hardware`|
-|Check the current software version| `ACOS>show version`|
+|Check your current hardware information|ACOS(config)#`show hardware`|
+|Check the current software version| ACOS>`show version`|
 |Check the current system disk space and memory. Free up the space, if required|`ACOS(config)#show memory` `ACOS(config)#show disk` |
 |Check the product license Information| `ACOS(config)#show license-info`|
 |Check the system boot order.|`ACOS(config)#show bootimage`| 
 |Save the primary, secondary, and partition configurations|`ACOS(config)#write memory primary\|secondary [profile-name]`|
+|Take the system backup|`ACOS(config)#backup system`| 
+|Take the backup of system log files and core files, if required.|`ACOS(config)#backup log`| 
 
-Take the system backup 
+ >See Also:  
+ For detailed information on all the commands, see ***Command Line Interface Reference***.
 
-ACOS(config)#backup system 
-
-Take the backup of system log files and core files, if required.  
-
-ACOS(config)#backup log 
-
- 
-
-See Also 
-
- For detailed information on all the commands, see Command Line Interface Reference.  
-
-## Upgrade Instructions 
+# Upgrade Instructions 
 
 This section describes the upgrade instructions using CLI and GUI. The upgrade instruction provided in this section applies to FTA platforms, non-FTA platforms, and non-aVCS environments.  
 
 ## CLI Configuration 
 
-Upgrade the ACOS device using the upgrade command. 
+1. Upgrade the ACOS device using the upgrade command. 
 
-To upgrade from primary hard disk:  
+### To upgrade from primary hard disk:  
 
-On an FTA device: `ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg`
+- On an FTA device: `ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg`
 
-On a Non-FTA device: ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg 
+- On a Non-FTA device: `ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg` 
 
-To upgrade from secondary hard disk:  
+### To upgrade from secondary hard disk:  
 
-On an FTA device: ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg 
+- On an FTA device: `ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg`
 
-On a Non-FTA device: ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg 
+- On a Non-FTA device: `ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg` 
 
 You will be prompted to reboot your ACOS device. 
 
- Press yes to reboot and bring up the upgraded ACOS software.  
+2. Press yes to reboot and bring up the upgraded ACOS software.  
 
-Allow up to five minutes for the reboot to complete. (The typical reboot time is 2-3 minutes.) 
+> Allow up to five minutes for the reboot to complete. (The typical reboot time is 2-3 minutes.) 
 
-Import the required license and reboot again.  
+3. Import the required license and reboot again.  
+  The upgrade process is completed successfully.  
 
-The upgrade process is completed successfully.  
+## GUI Configuration 
 
-GUI Configuration 
-
-Log in to ACOS Web GUI using your credentials. 
-
-Navigate to System >> Maintenance >> Upgrade.  
-
- 
-
-On the Upgrade page, click ? to open the Online Help. 
+1. Log in to ACOS Web GUI using your credentials. 
+1. Navigate to System >> Maintenance >> Upgrade.  
+1. On the Upgrade page, click ? to open the Online Help. 
 
 The Online Help provides complete details on upgrade and rollback instructions.  
 
-Post-Upgrade Tasks 
+## Post-Upgrade Tasks 
 
 After performing upgrade, it is important to perform some basic post-upgrade checks.  
 
- 
-
 Table 3 : Post-Upgrade Checklist 
 
-Tasks 
-
-Command or Action 
-
-Verify that the upgrade was successfully 
-
-ACOS>show version 
-
-Verify the required license is imported successfully 
-
-ACOS(config)#show license-info   
-
-Verify if the saved configuration from all the partitions are loaded successfully 
-
-ACOS(config)#startup-config [all | all-partitions | partition | profile] 
-
-Configure any new features or settings introduced in the latest release 
-
-Refer New Features and Enhancements guide from the documentation site.  
-
-Conduct thorough functional testing to ensure that all core features and functionalities work as expected in the latest version 
-
-NA 
+Tasks|Command or Action
+|----|----|
+Verify that the upgrade was successfully|ACOS>`show version` 
+Verify the required license is imported successfully|ACOS(config)#`show license-info`
+Verify if the saved configuration from all the partitions are loaded successfully|ACOS(config)#`startup-config [all \| all-partitions \| partition \| profile]`
+Configure any new features or settings introduced in the latest release|Refer New Features and Enhancements guide from the documentation site.  
+Conduct thorough functional testing to ensure that all core features and functionalities work as expected in the latest version|NA 
 
  
 
-Rollback Upgrade 
+# Rollback Upgrade 
 
 In case the upgrade encounters significant issues or if it fails, have a rollback plan ready to revert to the previous version. The rollback for ACOS device is similar to the upgrade process.  
 
  
 
-Table 4 : Rollback Tasks 
+**Table 4 : Rollback Tasks**
 
-Tasks 
-
+Tasks
 Refer 
-
-Carefully review the restoring the system backup information.  
-
+Carefully review the restoring the system backup information.
 Key Considerations for System Restore 
 
-Download your current version ACOS software image.  
-
-Perform the upgrade instructions.  
-
-Upgrade Instructions 
-
-Restore the backed up configurations.  
-
+Download your current version ACOS software image.
+Download Software
+Perform the upgrade instructions
+Upgrade Instructions  
+Restore the backed up configurations
 Restore Example 
-
-Perform the post-upgrade tasks.  
-
+Perform the post-upgrade tasks
 Post-Upgrade Tasks 
 
  
 
-Restore from a Backup 
+# Restore from a Backup 
 
 You can use a saved backup to restore your current system, for example, when upgrading the devices in your network to the newer A10 Thunder Series devices.  
 
-Key Considerations for System Restore 
+## Key Considerations for System Restore 
 
-System Memory 
+### System Memory 
 
 If the current device has insufficient memory compared to the backup device (for example, 16 GB on the current device compared to 32 GB on the previous device), this can adversely affect system performance.  
 
-FTA versus Non-FTA 
+### FTA versus Non-FTA 
 
 When restoring from an FTA device to a non-FTA device, some commands may become unavailable after the restore operation. These commands are lost and cannot be restored. 
 
-L3V Partitions 
+### L3V Partitions 
 
 L3v partitions and their configurations are restored. However, if you are restoring to a device that supports a fewer number of partitions (for example, 32) than you had configured from the backup device (for example, 64) any partitions and corresponding configuration beyond 32 will be lost. 
 
-Port Splitting 
+### Port Splitting 
 
 If you are restoring between devices with different 40 GB port splitting configurations, see Table 5. 
 
@@ -498,7 +470,7 @@ Please wait restore to complete: .
 
 Restore successful. Please reboot to take effect. 
 ```
-### GUI Configuration 
+## GUI Configuration 
 
 1. Log in to ACOS Web GUI using your credentials. 
 1. Navigate to System >> Maintenance >> Restore.  
