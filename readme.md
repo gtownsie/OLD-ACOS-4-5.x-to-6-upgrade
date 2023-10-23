@@ -8,16 +8,17 @@
   - [System Requirement](#system-requirement)
   - [System Partitions](#system-partitions)
   - [Review Boot Order](#review-boot-order)
+    - [Upgrade Process](#upgrade-process)
   - [Download Software Image](#download-software-image)
   - [Perform a Backup](#perform-a-backup)
-  - [CLI Conguration](#cli-conguration)
-  - [GUI Configuration](#gui-configuration)
-    - [Pre-Upgrade Tasks](#pre-upgrade-tasks)
+    - [CLI Configuration Backup](#cli-configuration-backup)
+    - [GUI Configuration Backup](#gui-configuration-backup)
+  - [Pre-Upgrade Tasks](#pre-upgrade-tasks)
 - [Upgrade Instructions](#upgrade-instructions)
   - [CLI Configuration](#cli-configuration)
     - [To upgrade from primary hard disk:](#to-upgrade-from-primary-hard-disk)
     - [To upgrade from secondary hard disk:](#to-upgrade-from-secondary-hard-disk)
-  - [GUI Configuration](#gui-configuration-1)
+  - [GUI Configuration](#gui-configuration)
   - [Post-Upgrade Tasks](#post-upgrade-tasks)
 - [Rollback Upgrade](#rollback-upgrade)
 - [Restore from a Backup](#restore-from-a-backup)
@@ -29,7 +30,7 @@
     - [Port Mapping](#port-mapping)
     - [Restore Example](#restore-example)
     - [CLI Configuration](#cli-configuration-1)
-  - [GUI Configuration](#gui-configuration-2)
+  - [GUI Configuration](#gui-configuration-1)
 
 
 
@@ -134,7 +135,7 @@ Depending on the configuration profile and the partition being saved to, the fol
 
 This section describes general guidelines on how ACOS selects the boot image. 
 
-Each ACOS device contains multiple locations where software images can be placed. Figure 1 fprovides an overview of the general upgrade process. For more information, see "Storage Areas" in the System Configuration and Administration Guide. 
+Each ACOS device contains multiple locations where software images can be placed. The _Upgrade Process_ table provides an overview of the general upgrade process. 
 
 - When you load a new image onto the ACOS device, you can select the image device (disk or CF) and the area (primary or secondary) on the device.  
 
@@ -142,29 +143,39 @@ Each ACOS device contains multiple locations where software images can be placed
 
 You need to change the boot order only when you plan to upload the new image into an image area other than the first image area the ACOS device uses when it boots (primary disk). To change the boot order, use the bootimage command.  
 
-> NOTE:	A10 Networks recommends installing the new image into just one disk image area, either primary or secondary, while retaining the old image in the other area. This helps to restore the system in case a downgrade is necessary or if an issue occurs while rebooting the new image.  
+> NOTE:	A10 Networks recommends installing the new image into the inactive disk image area, either primary or secondary, while retaining the old image in the other area. This helps to restore the system in case a downgrade is necessary or if an issue occurs while rebooting the new image.  
 
-Upgrade Process
-|System|Active Partition|Partition 1|Upgrade|Partition 2|
-|----|----|:----:|:------:|:----:|
-|New System|Partition 1|Acitve - System Image/Startup-Config||System Image/Startup-Config|
-|1st Upgrade|Partition 2|System Image/Startup-Config| --> |Active - System Image/Startup-Config|
-|Next Upgrade|Partition 1|Active - System Image/Startup-Config| <-- |System Image/Startup-Config|
-|Next Upgrade|Partition 2|System Image/Startup-Config| --> |Active - System Image/Startup-Config|
+### Upgrade Process
+
+|System|Partition 1|Upgrade|Partition 2|
+|----|:----:|:------:|:----:|
+|New System|Acitve||Inactive
+|1st Upgrade|Inactive|-->|Active
+|2nd Upgrade|Active|-->|Inactive
+|Next Upgrade|Inactive|-->|Active
+|Next Upgrade|Active|-->|Inactive
+
 
 ## Download Software Image 
+
+A10 Networks has two device types, FTA and non-FTA.  All vThunder devices will use the non-FTA version and depending on the hardware type will determin the correct image.  To determine if your device has an FTA, login to the device and run the following command:
+``ACOS# show hardware | inc FPGA``
+
+If a response is shown then the device had and FTA.
+
+``FPGA       : 4 instance(s) present``
+
+if the device does not have an FTA, no response to the ``show hardware`` command is displayed
 
 Log in to A10 Networks Support using the GLM credential and download the ACOS upgrade package as specified below:  
 
 - For FTA enabled platforms, use the image with the file name: 
 
-
-
-`ACOS_FTA_<version>ONEIMG.upg` 
+`ACOS_FTA_<version>.upg` 
 
 - For Non-FTA enabled platforms (including vThunder), use the image with the file name: 
 
-`ACOS_non_FTA_<version>ONEIMG.upg` 
+`ACOS_non_FTA_<version>.upg` 
 
 ## Perform a Backup 
 
@@ -172,43 +183,85 @@ It's essential to perform a complete backup of your data, including configuratio
 
 This section provides examples of how to back up your system. 
 
-## CLI Conguration 
+### CLI Configuration Backup 
 
-The following example creates a backup of the system (startup-config file, aFleX scripts, and SSL certificates and keys) on a remote server using SCP. 
+It is recommended to backup the system and the log files prior to upgrading the software.  
+- The following example creates a backup of the system (startup-config file, aFleX scripts, and SSL certificates and keys) on a remote server using SCP:
 
 `ACOS(config)# backup system scp://exampleuser@192.168.3.3/home/users/exampleuser/backups/backupfile.tar.gz`
 
-The following example creates a daily backup of the log entries in the syslog buffer. The connection to the remote server will be established using SCP on the management interface (use-mgmt-port).  
+- The following example creates a daily backup of the log entries in the syslog buffer. The connection to the remote server will be established using SCP on the management interface (use-mgmt-port).  
 
 `ACOS(config)# backup log period 1 use-mgmt-port scp://exampleuser@192.168.3.3/home/users/exampleuser/backups/backuplog.tar.gz`
 
-## GUI Configuration 
+### GUI Configuration Backup
 
 1. Log in to ACOS Web GUI using your credentials. 
-2. Navigate to System >> Maintenance >> Backup.  
-
-3. On the Backup page, click ? to open the Online Help. 
+1. Navigate to System >> Maintenance >> Backup.  
+1. On the Backup page, click ? to open the Online Help. 
 The Online Help provides complete details on backup instructions.  
 
-### Pre-Upgrade Tasks 
+## Pre-Upgrade Tasks 
 
 Before upgrading ACOS software, you must perform some basic checks. Keep the below information handy to ensure a seamless upgrade.  
 
- 
 
 Table 2 : Upgrade Preparation Checklist 
 
-|Tasks|Command or Action |
+|Tasks|Command or Action | 
 |---------|:-------------------------------|
-|Check your current hardware information|ACOS(config)#`show hardware`|
-|Check the current software version| ACOS>`show version`|
-|Check the current system disk space and memory. Free up the space, if required|`ACOS(config)#show memory` `ACOS(config)#show disk` |
+- [ ] Verify platform compatability:
+  ```
+   ACOS(config)#show hardware | inc Gateway
+  ``` 
+    Validate the platform is supports version 6.x
+     - vThunder:
+        ```
+        Thunder Series Unified Application Service Gateway vThunder
+        ```
+    - Hardware:
+      ``` 
+      Thunder Series Unified Application Service Gateway TH5840S
+      ```
+- [ ] Check the current software version
+  ```
+  ACOS>show version | inc ACOS
+  ``````
+  Validate that the current version is 4.x or later.
+  ```
+  64-bit Advanced Core OS (ACOS) version 5.2.1-p5, build 114 (Jul-14-2022,05:11)
+  ```
+
+- [ ] Check the current system disk space and verify minimum disk requriements 
+     ```ACOS(config)#show disk
+        ACOS(config)#show disk
+        Total(MB)    Used(MB)       Free(MB)       Usage
+        ---------------------------------------------------
+        20480          10421          10058          50%
+        Hard Disk Primary Status : OK```
+  
+- [ ] Check Memory: 
+  
+  ```
+  ACOS(config)#show memory | inc Memory
+  ```
+
+
+  Verify minimum memory requriements:
+  ```
+  Memory:  8127392      4742619     3384773   58.30%
+  ```
+
+ > ==Working on this secton - start 
+
 |Check the product license Information| `ACOS(config)#show license-info`|
 |Check the system boot order.|`ACOS(config)#show bootimage`| 
 |Save the primary, secondary, and partition configurations|`ACOS(config)#write memory primary\|secondary [profile-name]`|
 |Take the system backup|`ACOS(config)#backup system`| 
 |Take the backup of system log files and core files, if required.|`ACOS(config)#backup log`| 
+> ==Working on this secton - end
 
+ 
  >See Also:  
  For detailed information on all the commands, see ***Command Line Interface Reference***.
 
@@ -222,19 +275,27 @@ This section describes the upgrade instructions using CLI and GUI. The upgrade i
 
 ### To upgrade from primary hard disk:  
 
-- On an FTA device: `ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg`
+- On an FTA device:
+   
+   `ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg`
 
-- On a Non-FTA device: `ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg` 
+- On a Non-FTA device:
+  
+  `ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg` 
 
 ### To upgrade from secondary hard disk:  
 
-- On an FTA device: `ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg`
+- On an FTA device: 
+  
+  `ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg`
 
-- On a Non-FTA device: `ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg` 
+- On a Non-FTA device: 
+  
+  `ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg` 
 
 You will be prompted to reboot your ACOS device. 
 
-2. Press yes to reboot and bring up the upgraded ACOS software.  
+1. Press yes to reboot and bring up the upgraded ACOS software.  
 
 > Allow up to five minutes for the reboot to complete. (The typical reboot time is 2-3 minutes.) 
 
@@ -467,5 +528,5 @@ Restore successful. Please reboot to take effect.
 
 1. Log in to ACOS Web GUI using your credentials. 
 1. Navigate to System >> Maintenance >> Restore.  
-1. On the Restore page, click ? to open the Online Help. 
-1. The Online Help provides complete details on restore instructions.  
+> ==Need to get screen shots
+ 
