@@ -14,10 +14,9 @@
     - [CLI Configuration Backup](#cli-configuration-backup)
     - [GUI Configuration Backup](#gui-configuration-backup)
   - [Pre-Upgrade Tasks](#pre-upgrade-tasks)
+    - [Upgrade Preparation Checklist](#upgrade-preparation-checklist)
 - [Upgrade Instructions](#upgrade-instructions)
   - [CLI Configuration](#cli-configuration)
-    - [To upgrade from primary hard disk:](#to-upgrade-from-primary-hard-disk)
-    - [To upgrade from secondary hard disk:](#to-upgrade-from-secondary-hard-disk)
   - [GUI Configuration](#gui-configuration)
   - [Post-Upgrade Tasks](#post-upgrade-tasks)
 - [Rollback Upgrade](#rollback-upgrade)
@@ -159,24 +158,25 @@ You need to change the boot order only when you plan to upload the new image int
 ## Download Software Image 
 
 A10 Networks has two device types, FTA and non-FTA.  All vThunder devices will use the non-FTA version and depending on the hardware type will determin the correct image.  To determine if your device has an FTA, login to the device and run the following command:
-``ACOS# show hardware | inc FPGA``
-
+```
+ACOS# show hardware | inc FPGA
+```
 If a response is shown then the device had and FTA.
-
-``FPGA       : 4 instance(s) present``
-
+```
+FPGA       : 4 instance(s) present
+```
 if the device does not have an FTA, no response to the ``show hardware`` command is displayed
 
 Log in to A10 Networks Support using the GLM credential and download the ACOS upgrade package as specified below:  
 
 - For FTA enabled platforms, use the image with the file name: 
-
-`ACOS_FTA_<version>.upg` 
-
+```
+ACOS_FTA_<version>.upg
+```
 - For Non-FTA enabled platforms (including vThunder), use the image with the file name: 
-
-`ACOS_non_FTA_<version>.upg` 
-
+```
+ACOS_non_FTA_<version>.upg
+```
 ## Perform a Backup 
 
 It's essential to perform a complete backup of your data, including configuration settings, databases, and any customizations. This backup will prove invaluable in case of unexpected issues during the upgrade and you want to restore it. For information about restoring a backup, see Restore from a Backup.  
@@ -188,28 +188,30 @@ This section provides examples of how to back up your system.
 It is recommended to backup the system and the log files prior to upgrading the software.  
 - The following example creates a backup of the system (startup-config file, aFleX scripts, and SSL certificates and keys) on a remote server using SCP:
 
-`ACOS(config)# backup system scp://exampleuser@192.168.3.3/home/users/exampleuser/backups/backupfile.tar.gz`
+```
+ACOS(config)# backup system scp://exampleuser@192.168.3.3/home/users/exampleuser/backups/backupfile.tar.gz
+```
 
 - The following example creates a daily backup of the log entries in the syslog buffer. The connection to the remote server will be established using SCP on the management interface (use-mgmt-port).  
 
-`ACOS(config)# backup log period 1 use-mgmt-port scp://exampleuser@192.168.3.3/home/users/exampleuser/backups/backuplog.tar.gz`
+```
+ACOS(config)# backup log period 1 use-mgmt-port scp://exampleuser@192.168.3.3/home/users/exampleuser/backups/backuplog.tar.gz
+```
 
 ### GUI Configuration Backup
 
 1. Log in to ACOS Web GUI using your credentials. 
 1. Navigate to System >> Maintenance >> Backup.  
-1. On the Backup page, click ? to open the Online Help. 
-The Online Help provides complete details on backup instructions.  
+   >  == Add screenshot? 
 
 ## Pre-Upgrade Tasks 
 
 Before upgrading ACOS software, you must perform some basic checks. Keep the below information handy to ensure a seamless upgrade.  
 
 
-Table 2 : Upgrade Preparation Checklist 
+### Upgrade Preparation Checklist 
 
-|Tasks|Command or Action | 
-|---------|:-------------------------------|
+
 - [ ] Verify platform compatability:
   ```
    ACOS(config)#show hardware | inc Gateway
@@ -252,7 +254,7 @@ Table 2 : Upgrade Preparation Checklist
   Memory:  8127392      4742619     3384773   58.30%
   ```
 
-- [ ] Check the system boot order:
+- [ ] Check the system boot order to determine new destination:
   ```
   ACOS(config)#show bootimage | inc *
   ``` 
@@ -261,19 +263,21 @@ Table 2 : Upgrade Preparation Checklist
   Hard Disk primary         5.2.1-p5.114 (*)
   ```
 - [ ] Save all primary, secondary, and partition configurations
-
-
-
-
- > ==Working on this secton - start 
-
-
-|Save the primary, secondary, and partition configurations|`ACOS(config)#write memory primary\|secondary [profile-name]`|
-|Take the system backup|`ACOS(config)#backup system`| 
-|Take the backup of system log files and core files, if required.|`ACOS(config)#backup log`| 
-> ==Working on this secton - end
-
- 
+  ```
+  write memory all-partitions 
+  Building configuration...
+  Write configuration to default primary startup-config
+  Write configuration to profile "pri_default" on partition GSLB 
+  [OK]
+  ```
+- [ ] Backup the system configuration
+  ```
+  ACOS(config)# backup system scp://exampleuser@192.168.3.3/home/users/exampleuser/backups/backupfile.tar.gz
+  ```
+- [ ] Backup system log files
+  ```
+  ACOS(config)# backup log period 1 use-mgmt-port scp://exampleuser@192.168.3.3/home/users/exampleuser/backups/backuplog.tar.gz
+  ```
  >See Also:  
  For detailed information on all the commands, see ***Command Line Interface Reference***.
 
@@ -283,35 +287,28 @@ This section describes the upgrade instructions using CLI and GUI. The upgrade i
 
 ## CLI Configuration 
 
-1. Upgrade the ACOS device using the upgrade command. 
+1. Complete Upgrade Preparation Checklist
+1. Upgrade the ACOS device using the upgrade to the inactve partition.  
 
-### To upgrade from primary hard disk:  
-
-- On an FTA device:
+   - If the secondary hard disk is active upgrade the primary hard disk: 
    
-   `ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg`
+   ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_<version>.upg
+ 
+ > Note:  Use the approprate FTA or non-FTA ACOS version identified in the 
+ Upgrade Preparation Checklist
 
-- On a Non-FTA device:
+     - If the secondary hard disk is active upgrade the primary hard disk:
+  ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_non-FTA_\<version\>.upg
   
-  `ACOS-5-x(config)# upgrade hd pri scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg` 
+    > Note:  Use the approprate FTA or non-FTA ACOS version identified in the Upgrade Preparation Checklist   
 
-### To upgrade from secondary hard disk:  
+1. You will be prompted to reboot your ACOS device. 
 
-- On an FTA device: 
+2. Press yes to reboot and bring up the upgraded ACOS software.  
   
-  `ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_FTA_<version>ONEIMG.upg`
-
-- On a Non-FTA device: 
-  
-  `ACOS-5-x(config)# upgrade hd sec scp://2.2.2.2/images/ACOS_non-FTA_<version>ONEIMG.upg` 
-
-You will be prompted to reboot your ACOS device. 
-
-1. Press yes to reboot and bring up the upgraded ACOS software.  
-
 > Allow up to five minutes for the reboot to complete. (The typical reboot time is 2-3 minutes.) 
 
-3. Import the required license and reboot again.  
+2. Import the required license and reboot again.  
   The upgrade process is completed successfully.  
 
 ## GUI Configuration 
