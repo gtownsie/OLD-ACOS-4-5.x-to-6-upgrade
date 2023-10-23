@@ -51,7 +51,7 @@ If you are a new ACOS user, check the following documentation on the A10 Documen
 
 This guide provides detailed instructions for upgrading from ACOS 4.x or 5.x to the latest version of 6.x. It includes information on pre-upgrade preparations, the upgrade procedure, post-upgrade tasks, troubleshooting tips, and additional resources. 
 
-xThe following topics are covered:  
+The following topics are covered:  
 
 - General Guidelines
 - Prerequisites
