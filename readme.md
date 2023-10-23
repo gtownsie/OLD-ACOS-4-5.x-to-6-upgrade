@@ -252,10 +252,22 @@ Table 2 : Upgrade Preparation Checklist
   Memory:  8127392      4742619     3384773   58.30%
   ```
 
+- [ ] Check the system boot order:
+  ```
+  ACOS(config)#show bootimage | inc *
+  ``` 
+  This will display the current Default boot location
+  ```
+  Hard Disk primary         5.2.1-p5.114 (*)
+  ```
+- [ ] Save all primary, secondary, and partition configurations
+
+
+
+
  > ==Working on this secton - start 
 
-|Check the product license Information| `ACOS(config)#show license-info`|
-|Check the system boot order.|`ACOS(config)#show bootimage`| 
+
 |Save the primary, secondary, and partition configurations|`ACOS(config)#write memory primary\|secondary [profile-name]`|
 |Take the system backup|`ACOS(config)#backup system`| 
 |Take the backup of system log files and core files, if required.|`ACOS(config)#backup log`| 
