@@ -1,13 +1,11 @@
 - [Upgrading to ACOS 6.x.x](#upgrading-to-acos-6xx)
   - [Overview](#overview)
   - [Purpose](#purpose)
-  - [Intended Audience](#intended-audience)
   - [General Guidelines](#general-guidelines)
-  - [Unsupported Upgrade](#unsupported-upgrade)
+  - [Unsupported Hardware and Features](#unsupported-hardware-and-features)
 - [Prerequisites](#prerequisites)
 - [Upgrade Requirements](#upgrade-requirements)
   - [System Requirement](#system-requirement)
-  - [Memory Requirements](#memory-requirements)
   - [System Partitions](#system-partitions)
   - [Review Boot Order](#review-boot-order)
   - [Download Software Image](#download-software-image)
@@ -51,13 +49,9 @@ If you are a new ACOS user, check the following documentation on the A10 Documen
 
 ## Purpose 
 
-This guide provides detailed instructions for upgrading from ACOS 4.x or 5.x to the latest version. It includes information on pre-upgrade preparations, the upgrade procedure, post-upgrade tasks, troubleshooting tips, and additional resources. 
+This guide provides detailed instructions for upgrading from ACOS 4.x or 5.x to the latest version of 6.x. It includes information on pre-upgrade preparations, the upgrade procedure, post-upgrade tasks, troubleshooting tips, and additional resources. 
 
-## Intended Audience 
-
-This upgrade section is intended for system administrators, IT personnel, or individuals responsible for upgrading ACOS devices or products. 
-
-The following topics are covered:  
+xThe following topics are covered:  
 
 - General Guidelines
 - Prerequisites
@@ -80,7 +74,7 @@ Consider the following recommendations before upgrading the ACOS device:
 
 - During the reboot, the system performs a full reset and will be offline. The actual duration may vary depending on the system parameters.  
 
-## Unsupported Upgrade 
+## Unsupported Hardware and Features
 
 - The 3rd Generation Hardware Platforms cannot be upgraded to ACOS 6.x version. For more information, see Hardware Platforms Support.  
 
@@ -116,13 +110,8 @@ Download the ACOS software image. | Download Software Image
 
 The system requirements for ACOS software include the following: 
 
-- For ACOS 4.x releases, the minimum disk space requirement is 2.8 GB. 
-- For ACOS 5.x releases, the minimum disk space requirement is 4.5 GB. 
 - For ACOS 6.x releases, the minimum disk space requirement is 8 GB.  
-
-## Memory Requirements 
-
-For a vThunder device, the minimum memory requirement is 8 GB. 
+- For vThunder and Thunder devices, the minimum memory requirement is 8 GB. 
 
 ## System Partitions 
 
@@ -155,17 +144,21 @@ You need to change the boot order only when you plan to upload the new image int
 
 > NOTE:	A10 Networks recommends installing the new image into just one disk image area, either primary or secondary, while retaining the old image in the other area. This helps to restore the system in case a downgrade is necessary or if an issue occurs while rebooting the new image.  
 
-![Upgrade](./images/Upgrade-Image.png)
-
-_Figure 1_:  Generic Upgrade Process 
-
- 
+Upgrade Process
+|System|Active Partition|Partition 1| |Partition 2|
+|----|----|:----:|:------:|:----:|
+|New System|Partition 1|Acitve - System Image/Startup-Config||System Image/Startup-Config|
+|1st Upgrade|Partition 2|System Image/Startup-Config| --> |Active - System Image/Startup-Config|
+|Next Upgrade|Partition 1|Active - System Image/Startup-Config| <-- |System Image/Startup-Config|
+|Next Upgrade|Partition 2|System Image/Startup-Config| --> |Active - System Image/Startup-Config|
 
 ## Download Software Image 
 
 Log in to A10 Networks Support using the GLM credential and download the ACOS upgrade package as specified below:  
 
 - For FTA enabled platforms, use the image with the file name: 
+
+
 
 `ACOS_FTA_<version>ONEIMG.upg` 
 
