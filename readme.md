@@ -240,7 +240,8 @@ Before upgrading ACOS software, you must perform some basic checks. Keep the bel
         Total(MB)    Used(MB)       Free(MB)       Usage
         ---------------------------------------------------
         20480          10421          10058          50%
-        Hard Disk Primary Status : OK```
+        Hard Disk Primary Status : OK
+        
   
 - [ ] Check Memory: 
   
@@ -249,7 +250,7 @@ Before upgrading ACOS software, you must perform some basic checks. Keep the bel
   ```
 
 
-  Verify minimum memory requriements:
+  Verify minimum memory requriements, from first column:
   ```
   Memory:  8127392      4742619     3384773   58.30%
   ```
