@@ -216,7 +216,7 @@ Before upgrading ACOS software, you must perform some basic checks. Keep the bel
   ```
    ACOS(config)#show hardware | inc Gateway
   ``` 
-    Validate the platform is supports version 6.x
+    Validate the platform is supported on version 6.x
      - vThunder:
         ```
         Thunder Series Unified Application Service Gateway vThunder
