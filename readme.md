@@ -249,7 +249,7 @@ Before upgrading ACOS software, you must perform some basic checks. Keep the bel
   ```
 
 
-  Verify minimum memory requriements:
+  Verify minimum memory requriements, from first column:
   ```
   Memory:  8127392      4742619     3384773   58.30%
   ```
