@@ -306,7 +306,7 @@ This section describes the upgrade instructions using CLI and GUI. The upgrade i
 
 1. You will be prompted to reboot your ACOS device
     
-   <mark>Choose "NO" </mark>
+   ==Choose "NO"==
   
 1. You will be prompted to reboot your ACOS device. 
 
